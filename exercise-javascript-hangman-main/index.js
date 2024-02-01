@@ -1,6 +1,6 @@
 let theWordToGuess = [];
 let userGuess = [];
-let gameOver = false;
+let numberOfGuesses = 0;
 
 let guess = document.getElementById("guess-form");
 guess.addEventListener("submit", (e) => {
@@ -43,15 +43,45 @@ function handleUserGuess(e) {
   // Get the input inside the form
   let guessInput = guess.querySelector("#guess");
   // Get the value
-  let guessValue = guessInput.value;
+  let guessValue = guessInput.value.toLowerCase();
   console.log("Guess:", guessValue);
 
-  checkTheGuess(guessValue);
+  let check = checkTheGuess(guessValue);
+  if (check === true ){
+    let positions = getPositions(guessValue);
+    updateUserGuess(positions, guessValue);
+  }
+  else {
+    // draw picture
+  }
 }
 
 function checkTheGuess(guessValue) {
   let check = theWordToGuess.includes(guessValue);
   console.log(check);
+  return check
 }
 
+function getPositions(guessValue) {
+  let positions = [];
+  for (let i = 0; i < theWordToGuess.length; i++) {
+    if (theWordToGuess[i] === guessValue) {
+      positions.push(i);
+    }
+  }
+  console.log(positions);
+  return positions;
+}
+
+function updateUserGuess(positions, guessValue) {
+  for (let i = 0; i < positions.length; i++) {
+    userGuess[positions[i]] = guessValue;
+  }
+  updateVisualWord();
+}
+
+function updateVisualWord() {
+  let wordPlace = document.querySelector("#the-word-to-guess");
+  wordPlace.innerText = userGuess.join(" ");
+}
 newWordToGuess();
