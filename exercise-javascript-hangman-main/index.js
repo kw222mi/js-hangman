@@ -1,18 +1,11 @@
-let wordToGuess = [
-    'cat',
-    'dog',
-    'hamster',
-    'parrot',
-]
 
 let theWordToGuess = []
 let userGuess = []
 let gameOver = false
 
-function newWordToGuess () {
-    let random = getRandomInt(wordToGuess.length);
-    let word = wordToGuess[random]
-    console.log(word)
+async function newWordToGuess () {
+    let word = await getRandomWord();;
+   console.log(word)
 
     theWordToGuess = word.split(""); 
     userGuess = Array.from(word, () => "_");
@@ -24,6 +17,14 @@ function newWordToGuess () {
     startGame()
 }
 
+ async function getRandomWord() {
+   const response = await fetch(
+     "https://random-word-api.vercel.app/api?words=1"
+   );
+   const movies = await response.json();
+   console.log( movies[0]);
+   return movies[0]
+ }
 
 function renderEmptyWord(numberOfLetters) {
   let wordPlace = document.querySelector("#the-word-to-guess");
@@ -32,11 +33,6 @@ function renderEmptyWord(numberOfLetters) {
   let element = document.createElement("div");
   element.innerText = "_ ".repeat(numberOfLetters).trim();
   wordPlace.appendChild(element);
-}
-
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
 }
 
 function startGame () {
