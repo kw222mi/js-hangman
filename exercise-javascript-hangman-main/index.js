@@ -52,7 +52,12 @@ function handleUserGuess(e) {
     updateUserGuess(positions, guessValue);
   }
   else {
-    // draw picture
+    drawPicture(numberOfGuesses);
+
+    numberOfGuesses = numberOfGuesses + 1;
+    if (numberOfGuesses === 4) {
+        console.log('game over')
+    }
   }
 }
 
@@ -84,4 +89,12 @@ function updateVisualWord() {
   let wordPlace = document.querySelector("#the-word-to-guess");
   wordPlace.innerText = userGuess.join(" ");
 }
+
+function drawPicture(numberOfGuesses) {
+    let path = document.querySelectorAll('path')
+    console.log(path[numberOfGuesses])
+    path[numberOfGuesses].classList.remove("nonvisible")
+
+}
+
 newWordToGuess();
