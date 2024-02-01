@@ -1,13 +1,12 @@
 let theWordToGuess = [];
 let userGuess = [];
 let numberOfGuesses = 0;
+let allGuessedLetters = []
 
 let guess = document.getElementById("guess-form");
-guess.addEventListener("submit", (e) => {
-  handleUserGuess(e);
-});
+guess.addEventListener("submit", (e) => handleUserGuess(e));
 
-async function newWordToGuess() {
+const newWordToGuess = async () => {
   let word = await getRandomWord();
   console.log(word);
 
@@ -18,56 +17,81 @@ async function newWordToGuess() {
   console.log(numberOfLetters);
 
   renderEmptyWord(numberOfLetters);
-}
+};
 
-async function getRandomWord() {
+const getRandomWord = async () => {
   const response = await fetch(
     "https://random-word-api.vercel.app/api?words=1"
   );
   const movies = await response.json();
   console.log(movies[0]);
   return movies[0];
-}
+};
 
-function renderEmptyWord(numberOfLetters) {
+const renderEmptyWord = (numberOfLetters) => {
   let wordPlace = document.querySelector("#the-word-to-guess");
   console.log(wordPlace);
 
   let element = document.createElement("div");
   element.innerText = "_ ".repeat(numberOfLetters).trim();
   wordPlace.appendChild(element);
-}
+};
 
-function handleUserGuess(e) {
+const handleUserGuess = (e) => {
   e.preventDefault();
   // Get the input inside the form
   let guessInput = guess.querySelector("#guess");
   // Get the value
   let guessValue = guessInput.value.toLowerCase();
+  guessInput.value= ''
   console.log("Guess:", guessValue);
 
   let check = checkTheGuess(guessValue);
-  if (check === true ){
+
+  if (check === true) {
     let positions = getPositions(guessValue);
     updateUserGuess(positions, guessValue);
-  }
-  else {
+  } if (check === false ) {
     drawPicture(numberOfGuesses);
-
     numberOfGuesses = numberOfGuesses + 1;
-    if (numberOfGuesses === 4) {
-        console.log('game over')
+    if (numberOfGuesses === 5) {
+      console.log("game over");
+      let result = 'loose'
+      presentResult(result)
     }
   }
-}
+  if(check === null) {
+    console.log('letter already used!!')
+  }
+};
 
-function checkTheGuess(guessValue) {
+const checkTheGuess = (guessValue) => {
+  let usedLetter = allGuessedLetters.includes(guessValue);
+  if (usedLetter === false){
+  addToGuessedLetters(guessValue);
   let check = theWordToGuess.includes(guessValue);
   console.log(check);
-  return check
+  return check;
+  }
+  else {
+    return null
+  }
+};
+
+const addToGuessedLetters = (guessValue) => {
+   
+    allGuessedLetters.push(guessValue)
+    console.log(allGuessedLetters);
+    allGuessedLettersString = allGuessedLetters.join("");
+
+    let guessedLetters = document.querySelector('#guessed-letters')
+     guessedLetters.innerHTML = "";
+    let element = document.createElement("div");
+    element.innerText = allGuessedLettersString;
+     guessedLetters.appendChild(element);
 }
 
-function getPositions(guessValue) {
+const getPositions = (guessValue) => {
   let positions = [];
   for (let i = 0; i < theWordToGuess.length; i++) {
     if (theWordToGuess[i] === guessValue) {
@@ -76,25 +100,45 @@ function getPositions(guessValue) {
   }
   console.log(positions);
   return positions;
-}
+};
 
-function updateUserGuess(positions, guessValue) {
+const updateUserGuess = (positions, guessValue) => {
   for (let i = 0; i < positions.length; i++) {
     userGuess[positions[i]] = guessValue;
   }
   updateVisualWord();
-}
+};
 
-function updateVisualWord() {
+const updateVisualWord = () => {
   let wordPlace = document.querySelector("#the-word-to-guess");
   wordPlace.innerText = userGuess.join(" ");
-}
+};
 
-function drawPicture(numberOfGuesses) {
-    let path = document.querySelectorAll('path')
-    console.log(path[numberOfGuesses])
-    path[numberOfGuesses].classList.remove("nonvisible")
+const drawPicture = (numberOfGuesses) => {
+  let path = document.querySelectorAll("path");
+  let ellipse = document.querySelector("ellipse");
+
+  if (numberOfGuesses<5) {
+  console.log(path[numberOfGuesses]);
+  path[numberOfGuesses].classList.remove("nonvisible");
+  }
+  else {
+    ellipse.classList.remove("nonvisible");
+  }
+};
+
+const presentResult = (result) => {
+    if( result === 'loose') {
+        console.log('YOU LOOSE')
+        console.log('The word was: ' + theWordToGuess.join(""))
+    }
+    else {
+        console.log('YOU WIN!!')
+    }
 
 }
 
 newWordToGuess();
+
+// Game over (win or loose) and start again
+// style
