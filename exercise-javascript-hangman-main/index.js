@@ -1,34 +1,40 @@
+/*-------Global variables---------*/
+
 let theWordToGuess = [];
 let userGuess = [];
 let numberOfGuesses = 0;
-let allGuessedLetters = []
+let allGuessedLetters = [];
 const modal = document.getElementById("myModal");
 
+/*--------Eventlisteners--------*/
+
 let guess = document.getElementById("guess-form");
+// Get the guess from the form
 guess.addEventListener("submit", (e) => handleUserGuess(e));
 
-const newWordToGuess = async () => {
-  cleanUpTheBoard()
-  let word = await getRandomWord();
-  console.log(word);
-
-  theWordToGuess = word.split("");
-  userGuess = Array.from(word, () => "_");
-  let numberOfLetters = word.length;
-
-  renderEmptyWord(numberOfLetters);
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
 };
 
-const cleanUpTheBoard = () => {
-  allGuessedLetters = [];
-  theWordToGuess = [];
-  userGuess = [];
-  numberOfGuesses = 0;
-  console.log(allGuessedLetters)
-  renderEmptyWord(0);
-  document.querySelector("#guessed-letters").innerText = "";
-}
+let span = document.getElementsByClassName("close")[0];
+// When the user clicks on <span> (x), close the modal
+span.onclick = function () {
+  modal.style.display = "none";
+};
 
+/*------------Functions---------*/
+
+const newWordToGuess = async () => {
+  cleanUpTheBoard();
+  let word = await getRandomWord();
+  console.log(word);
+  theWordToGuess = word.split("");
+  userGuess = Array.from(word, () => "_");
+  renderEmptyWord(word.length);
+};
 
 const getRandomWord = async () => {
   const response = await fetch(
@@ -40,53 +46,47 @@ const getRandomWord = async () => {
 
 const renderEmptyWord = (numberOfLetters) => {
   let wordPlace = document.querySelector("#the-word-to-guess");
-  // Clear existing content
-  wordPlace.innerHTML = "";
-
+  wordPlace.innerHTML = ""; // Clear existing content
   let element = document.createElement("div");
   element.innerText = "_ ".repeat(numberOfLetters).trim();
   wordPlace.appendChild(element);
 };
 
-
 const handleUserGuess = (e) => {
   e.preventDefault();
-  // Get the input inside the form
-  let guessInput = guess.querySelector("#guess");
-  // Get the value
-  let guessValue = guessInput.value.toLowerCase();
-  guessInput.value= ''
-
+  let guessInput = guess.querySelector("#guess"); // Get the input inside the form
+  let guessValue = guessInput.value.toLowerCase(); // Get the value
+  guessInput.value = "";
   let check = checkTheGuess(guessValue);
 
   if (check === true) {
     let positions = getPositions(guessValue);
     updateUserGuess(positions, guessValue);
     addToGuessedLetters(guessValue);
-  } if (check === false ) {
+  }
+  if (check === false) {
     addToGuessedLetters(guessValue);
     drawPicture(numberOfGuesses);
     numberOfGuesses = numberOfGuesses + 1;
     if (numberOfGuesses === 5) {
-      let result = 'loose'
-      presentResult(result)
+      let result = "loose";
+      presentResult(result);
     }
   }
-  if(check === null) {
-    console.log('letter already used!!')
+  if (check === null) {
+    modal.querySelector("p").innerText = `The letter is already used.`;
+    modal.style.display = "block";
+    let modalContent = modal.querySelector(".modal-content");
   }
 };
 
 const checkTheGuess = (guessValue) => {
-  let usedLetter = allGuessedLetters.includes(guessValue);
-  if (usedLetter === false){
-  
-  let check = theWordToGuess.includes(guessValue);
-  // console.log(check);
-  return check;
-  }
-  else {
-    return null
+  let usedLetter = allGuessedLetters.includes(guessValue); //Check if letter is used
+  if (usedLetter === false) {
+    let check = theWordToGuess.includes(guessValue);
+    return check;
+  } else {
+    return null;
   }
 };
 
@@ -94,14 +94,11 @@ const addToGuessedLetters = (guessValue) => {
   allGuessedLetters.push(guessValue);
   let allGuessedLettersString = allGuessedLetters.join("");
   let guessedLetters = document.querySelector("#guessed-letters");
-
-  guessedLetters.innerHTML=''
-
+  guessedLetters.innerHTML = "";
   let element = document.createElement("div");
   element.innerText = allGuessedLettersString;
   guessedLetters.appendChild(element);
 };
-
 
 const getPositions = (guessValue) => {
   let positions = [];
@@ -130,70 +127,65 @@ const drawPicture = (numberOfGuesses) => {
   let path = document.querySelectorAll("path");
   let ellipse = document.querySelector("ellipse");
 
-  if (numberOfGuesses<5) {
-  path[numberOfGuesses].classList.remove("nonvisible");
-  }
-  else {
+  if (numberOfGuesses < 5) {
+    path[numberOfGuesses].classList.remove("nonvisible");
+  } else {
     ellipse.classList.remove("nonvisible");
   }
 };
 
 const checkIfWinner = () => {
-   console.log("Inside checkIfWinner");
-    
   const str1 = theWordToGuess.join("");
   const str2 = userGuess.join("");
-
-   console.log(str1 );
-    console.log( str2);
-  console.log( str1 === str2)
   if (str1 === str2) {
     presentResult(true);
   }
-
-}
+};
 
 const presentResult = (result) => {
-    if( result === 'loose') {
-        modal.querySelector("p").innerText = `You Loose!, The word was:  ${theWordToGuess.join("")}`;
-        modal.style.display = "block";
-
-        let modalContent = modal.querySelector('.modal-content')
-        let btn = document.createElement("button");
-        btn.innerText = 'New game'
-        modalContent.appendChild(btn);
-        btn.addEventListener("click", () => newWordToGuess());
-    }
-    else {
-        modal.querySelector("p").innerText = `You Win!, The word was:  ${theWordToGuess.join("")}`;
-        modal.style.display = "block";
-
-           let modalContent = modal.querySelector(".modal-content");
-           let btn = document.createElement("button");
-           btn.innerText = "New game";
-           modalContent.appendChild(btn);
-           btn.addEventListener("click", () => {
-            newWordToGuess()
-            modal.style.display = "none"
-          });
-}
-}
-
-let span = document.getElementsByClassName("close")[0];
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
+  if (result === "loose") {
+    modal.querySelector(
+      "p"
+    ).innerText = `You Loose!, The word was:  ${theWordToGuess.join("")}`;
+    modal.style.display = "block";
+    let modalContent = modal.querySelector(".modal-content");
+    addButtonForNewGame(modalContent);
+  } else {
+    modal.querySelector(
+      "p"
+    ).innerText = `You Win!, The word was:  ${theWordToGuess.join("")}`;
+    modal.style.display = "block";
+    let modalContent = modal.querySelector(".modal-content");
+    addButtonForNewGame(modalContent);
   }
-}
+};
 
+const addButtonForNewGame = (modalContent) => {
+  let btn = document.createElement("button");
+  btn.innerText = "New game";
+  modalContent.appendChild(btn);
+
+  btn.addEventListener("click", () => {
+    newWordToGuess();
+    modal.style.display = "none";
+    btn.remove();
+  });
+};
+
+const cleanUpTheBoard = () => {
+  allGuessedLetters = [];
+  theWordToGuess = [];
+  userGuess = [];
+  numberOfGuesses = 0;
+  renderEmptyWord(0);
+  document.querySelector("#guessed-letters").innerText = "";
+  let path = document.querySelectorAll("path");
+  let ellipse = document.querySelector("ellipse");
+  path.forEach((element) => element.classList.add("nonvisible"));
+  ellipse.classList.add("nonvisible");
+};
+
+/*------Start up the game---------*/
 newWordToGuess();
 
-// style
-// input focus
-// clean modal button?
+
