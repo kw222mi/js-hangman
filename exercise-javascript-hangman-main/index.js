@@ -48,6 +48,7 @@ const renderEmptyWord = (numberOfLetters) => {
   let wordPlace = document.querySelector("#the-word-to-guess");
   wordPlace.innerHTML = ""; // Clear existing content
   let element = document.createElement("div");
+  element.setAttribute("class", "empty-word")
   element.innerText = "_ ".repeat(numberOfLetters).trim();
   wordPlace.appendChild(element);
 };
@@ -86,7 +87,7 @@ const checkTheGuess = (guessValue) => {
     let check = theWordToGuess.includes(guessValue);
     return check;
   } else {
-    return null;
+    return null; // Return null if the letter is used
   }
 };
 
@@ -94,8 +95,9 @@ const addToGuessedLetters = (guessValue) => {
   allGuessedLetters.push(guessValue);
   let allGuessedLettersString = allGuessedLetters.join("");
   let guessedLetters = document.querySelector("#guessed-letters");
-  guessedLetters.innerHTML = "";
+  guessedLetters.innerHTML = "";  // clean last render
   let element = document.createElement("div");
+  element.setAttribute("class", "guessed-letters")
   element.innerText = allGuessedLettersString;
   guessedLetters.appendChild(element);
 };
@@ -163,6 +165,7 @@ const presentResult = (result) => {
 const addButtonForNewGame = (modalContent) => {
   let btn = document.createElement("button");
   btn.innerText = "New game";
+  btn.setAttribute("class", "button")
   modalContent.appendChild(btn);
 
   btn.addEventListener("click", () => {
@@ -185,7 +188,7 @@ const cleanUpTheBoard = () => {
   ellipse.classList.add("nonvisible");
 };
 
-/*------Start up the game---------*/
+/*------Start the game---------*/
 newWordToGuess();
 
 
